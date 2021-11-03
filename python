@@ -1,0 +1,26 @@
+import requests
+from bs4 import BeautifulSoup
+import json
+import pandas as pd
+
+payload = {'acao':'gerar_veiculo', 
+           'pontuacao': 'S',
+           'estado': 'ES', 
+           }
+
+carros = {"Marca": [], "Modelo": [], "Ano": [], "Placa": [], "RENAVAM": [], "COR": [] }
+
+for i in range(0,10000):
+    res = requests.post("https://www.4devs.com.br/ferramentas_online.php", data = payload)
+    soup = BeautifulSoup(res.text, 'html.parser')
+    temp = soup.find_all("div", class_="small-collapse")
+    carros['Marca'].append(temp[0].find("div", class_="small-4").input.get_attribute_list('value')[0])
+    carros['Modelo'].append(temp[1].find("div", class_="small-6").input.get_attribute_list('value')[0]) 
+    carros['Ano'].append(temp[2].find("div", class_="small-2").input.get_attribute_list('value')[0]) 
+    carros['RENAVAM'].append(temp[3].find("div", class_="small-3 columns").input.get_attribute_list('value')[0]) 
+    carros['Placa'].append(temp[4].find("div", class_="small-2 columns").input.get_attribute_list('value')[0]) 
+    carros['COR'].append(temp[5].find("div", class_="small-2 columns").input.get_attribute_list('value')[0]) 
+df = pd.DataFrame(carros)
+df
+
+df.to_excel('carros.xlsx')
